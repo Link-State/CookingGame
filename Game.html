@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>요리가게</title>
+    <style>
+        span {color: blue}
+        #yes, #no {font-family: 함초롬돋움, 맑은고딕; padding: 3px; border: 3px solid gray; text-align: center; display: inline-block; width: 50px; height: 20px;}
+        #block div {display: inline-block; text-align: center;}
+        #block {text-align: center;}
+    </style>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-migrate-1.4.1.min.js"></script>
+    <script>
+                                                                                                /*--- 제작자 : Link-State ---*/
+        var mobile = navigator.userAgent.toLowerCase();
+        var sel = 0; // 입력변수
+        var Life = 50; // 목숨
+        var Wave = 1; // 단계
+        var Trust = 0; // 실망감
+        var OrderCount = 0; // 현재 주문 수
+        var PartTime = 1000; // 알바생 음식조리속도
+        var PartTimePrice = 50000; // 알바생 고용에 필요한 금액
+        var PartTimeCount = 0; // 알바생 수
+        var PartTimeWage = 0;
+        var Guest = 51; // 손님 수 (숫자가 적을수록 더 빨리 옴)
+        var ForceStop = false; // 모든 함수 강제정지
+        var ETCDamage = 0; // 기타 손실금액양
+        var ETCReveune = 0;
+        var AlwaysAcc1 = 0; //
+        var AlwaysAcc2 = 0; //
+        var AlwaysAcc3 = 0;
+        var TempWave = 0;
+        var WaveADD = false;
+        var TodayTrust = 0;
+        var TimeAttack = 0;
+        var CountAttack = 0;
+        var Lucky = 0;
+        var LuckyCount = 0;
+        var TechnicalFoodPoison = 1000;
+        var LuckyCost = 100000;
+        var TechnicalCount = 0;
+        var AccSell = 0;
+        var GameOver = false;
+        var Brocer = false;
+        var addFoodmenu = 0;
+        var recordPaper = 0;
+        var Pointer = null;
+        var This = null;
+        var SelectQuestion = null;
+        var forever = 0;
+        var mainfontsize = 16;
+        var cursor;
+        var cursorMoving = false;
+
+        var mix = new material("밀가루", 4, 4, 0, 3000, 0, 50, 0, 0, 0, 0, 0, 0);
+        var kimchi = new material("김치", 6, 6, 0, 7700, 0, 250, 0, 0, 0, 0, 0, 0);
+        var meet = new material("생고기", 11, 11, 0, 11000, 0, 450, 0, 0, 0, 0, 0, 0);
+        var jeon = new material("김치전", 0, 0, 0, 5300, 0, 600, 0, 0, 0, 0, 0, 0);
+        var coldnuddle = new material("냉면", 0, 0, 0, 6000, 0, 500, 0, 0, 0, 0, 0, 0);
+        var samgyub = new material("삼겹살", 0, 0, 0, 8500, 0, 200, 0, 0, 0, 0, 0, 0);
+        var meetnoodle = new material("육쌈냉면", 0, 0, 0, 7600, 0, 650, 0, 0, 0, 0, 0, 0);
+        var brit = new material("브리또", 0, 0, 0, 4500, 0, 250, 0, 0, 0, 0, 0, 0);
+        var pork = new material("돈까스", 0, 0, 0, 7000, 0, 1000, 0, 0, 0, 0, 0, 0);
+        var info = new material(500000, 120, 0, 1000000, 0) /*1- freeze 2- keep 4- money */
+        /*이름, 조리시간, 조리시간(즉각적변경), 현재음식수량, 현재음식갯수, 음식판매비용, (하루)상한음식수, 음식구매비용, (하루)순이익금액, (누적)상한음식수, (누적)음식구매비용, (누적)순이익금액 (누적)*/
+        function material(Name, Time, TempTime, Count, Price, 상한음식수, 재료비, 오늘총이익, 누적상한음식수, 오늘실망감, 누적총이익, 오늘누적음식제작횟수, 계속누적음식제작횟수)
+        {
+            this.materialName = Name;
+            this.materialTime = Time;
+            this.materialTempTime = TempTime;
+            this.materialCount = Count;
+            this.materialPrice = Price;
+            this.material상한음식수 = 상한음식수;
+            this.material재료비 = 재료비;
+            this.material오늘총이익 = 오늘총이익;
+            this.material누적상한음식수 = 누적상한음식수;
+            this.material오늘실망감 = 오늘실망감;
+            this.material누적총이익 = 누적총이익;
+            this.material오늘누적음식제작횟수 = 오늘누적음식제작횟수;
+            this.material계속누적음식제작횟수 = 계속누적음식제작횟수;
+            //this.materialKeepTime = KeepTime;
+            //console.log(this.materialCount);
+        }
+        $(function()
+        {
+            var widthX = $(window).width();
+            var heightY = $(window).height();
+            if ((widthX * 1.25) <= heightY)
+            {
+                $(".recordPaper").attr({"style" : "border: 1px solid black; width: " + (widthX/1.1) + "px;"});
+                $(".mySpace").attr({"style" : "border: 1px solid black; width: " + (widthX/1.1) + "px;"});
+            }
+            else
+            {
+                $(".recordPaper").attr({"style" : "border: 1px solid black; width: " + (widthX/2) + "px;"});
+                $(".orderPaper").attr({"style" : "border: 1px solid black; width: " + (widthX/5.5) + "px;"});
+                $(".mySpace").attr({"style" : "border: 1px solid black; width: " + (widthX/5) + "px;"});
+            }
+        });
+        function window1(text)
+        {
+            $(function()
+            {
+                var widthX = $(window).width();
+                var heightY = $(window).height();
+                var temp3;
+                temp3 = $("#sel").is(":visible");
+                if (temp3)
+                {
+                    $("#sel").attr({"style": "display : none"});
+                    return false;
+                }
+                else
+                {
+                    sel = null;
+                    $("#yesoryes").attr({"style" : "color: black;"});
+                    $("#yes").attr({"style" : "color: black;"});
+                    $("#no").attr({"style" : "color: black;"});
+                    $("#yesoryes").text(text);
+                    if ((widthX * 1.25) < heightY)
+                    {
+                        $("#sel").attr({"style": "display : initial; position: fixed; bottom: "+ 2 +"em; left: 50%; transform : translate(-50%); padding: "+ 2 +"em; width: "+ (widthX/2) +"px; height: "+ (heightY/3) +"px; background-color: lightgray; border: 0.25em solid black; text-align: center;"});
+                    }
+                    else
+                    {
+                        $("#sel").attr({"style": "display : initial; position: fixed; bottom: "+ 2 +"em; left: 50%; transform : translate(-50%); padding: "+ 2 +"em; width: "+ (widthX/4) +"px; height: "+ (heightY/5) +"px; background-color: lightgray; border: 0.25em solid black; text-align: center;"});
+                    }
+                    return false;
+                }
+            });
+        }
+
+        function textpush(sentence2)
+        {
+            $(function()
+            {
+                $("#recordPaper14").text(" ");
+                for (var i = 13; i >= 0; i--)
+                {
+                    var sentence1 = $("#recordPaper"+ i).text();
+                    // console.log(sentence1);
+                    $("#recordPaper"+ (i+1)).text(sentence1);
+                    $("#recordPaper"+ i).text(" ");
+                }
+                $("#recordPaper0").text(sentence2);
+                return false;
+            });
+        }
+
+        function make(str, innateNum)
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (ForceStop == true)
+            {
+                textpush("휴식시간 입니다.");
+                return false;
+            }
+            var realname;
+            if (str == "밀가루")
+            {
+                realname = mix;
+            }
+            else if (str == "김치")
+            {
+                realname = kimchi;
+            }
+            else if (str == "생고기")
+            {
+                realname = meet;
+            }
+            else if (str == "김치전")
+            {
+                realname = jeon;
+            }
+            else if (str == "냉면")
+            {
+                realname = coldnuddle;
+            }
+            else if (str == "삼겹살")
+            {
+                realname = samgyub;
+            }
+            else if (str == "육쌈냉면")
+            {
+                realname = meetnoodle;
+            }
+            else if (str == "브리또")
+            {
+                realname = brit;
+            }
+            else if (str == "돈까스")
+            {
+                realname = pork;
+            }
+            else
+            {
+                realname = mix;
+            }
+            if (realname.materialTempTime != realname.materialTime)
+            {
+                
+                textpush(realname.materialName + " 은(는) 이미 생성 중 입니다! (남은시간 : " + realname.materialTempTime + "초)");
+                return false;
+            }
+            else
+            {
+                if (innateNum > (3 + addFoodmenu))
+                {
+                    
+                    textpush("이 음식은 아직 만들 수 없습니다!");
+                    return false;
+                }
+                if (str == "밀가루" || str == "김치" ||  str == "생고기")
+                {
+                    var maketime = (realname.materialTempTime-1);
+                }
+                else
+                {
+                    var maketime = realname.materialCount;
+                }
+                Pointer = 0;
+                This = realname;
+                SelectQuestion = true;
+                window1(realname.materialName + " 을(를) 생성 하시겠습니까? (소요시간 : " + ((maketime*PartTime)/1000) + "초)");
+                return false;
+                // sel = confirm(realname.materialName + " 을(를) 생성 하시겠습니까? (소요시간 : " + (realname.materialTime - 1) + "초)"); //선택문
+            }
+        }
+
+        function make2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            var realname = This;
+            if (selective)
+            {
+                if (realname.materialName == "김치전")
+                {
+                    if (mix.materialCount < 1 && kimchi.materialCount < 2)
+                    {
+                        
+                        textpush("야! 재료가 부족하잖아!");
+                        return false;
+                    }
+                    else if (mix.materialCount < 1)
+                    {
+                        
+                        textpush("야! 밀가루가 부족하잖아!");
+                        return false;
+                    }
+                    else if (kimchi.materialCount < 2)
+                    {
+                        
+                        textpush("야! 김치가 " + (2 - kimchi.materialCount) + "개 부족하잖아!");
+                        return false;
+                    }
+                    else
+                    {
+                        info.materialCount -= realname.material재료비;
+                        mix.materialCount -= 1;
+                        kimchi.materialCount -= 2;
+                        textpush("김치전을 만들기 위해 밀가루 1개, 김치 2개가 사용되었습니다.");
+                    }
+                }
+                else if (realname.materialName == "냉면")
+                {
+                    if (mix.materialCount < 1 && meet.materialCount < 1)
+                    {
+                        textpush("야! 재료가 부족하잖아!");
+                        return false;
+                    }
+                    else if (mix.materialCount < 1)
+                    {
+                        textpush("야! 밀가루가 부족하잖아!");
+                        return false;
+                    }
+                    else if (meet.materialCount < 1)
+                    {
+                        textpush("야! 생고기가 부족하잖아!");
+                        return false;
+                    }
+                    else
+                    {
+                        info.materialCount -= realname.material재료비;
+                        mix.materialCount -= 1;
+                        meet.materialCount -= 1;
+                        
+                        textpush("냉면을 만들기 위해 밀가루 1개, 생고기 1개가 사용되었습니다.");
+                    }
+                }
+                else if (realname.materialName == "삼겹살")
+                {
+                    if (kimchi.materialCount < 2 && meet.materialCount < 1)
+                    {
+                        textpush("야! 재료가 부족하잖아!");
+                        return false;
+                    }
+                    else if (meet.materialCount < 1)
+                    {
+                        textpush("야! 생고기가 부족하잖아!");
+                        return false;
+                    }
+                    else if (kimchi.materialCount < 2)
+                    {
+                        textpush("야! 김치가 " + (2 - kimchi.materialCount) + "개 부족하잖아!");
+                        return false;
+                    }
+                    else
+                    {
+                        info.materialCount -= realname.material재료비;
+                        meet.materialCount -= 1;
+                        kimchi.materialCount -= 2;
+                        
+                        textpush("삼겹살을 만들기 위해 생고기 1개, 김치 2개가 사용되었습니다.");
+                    }
+                }
+                else if (realname.materialName == "육쌈냉면")
+                {
+                    if (coldnuddle.materialCount < 1 && meet.materialCount < 1 && kimchi.materialCount < 1)
+                    {
+                        textpush("야! 재료가 부족하잖아!");
+                        return false;
+                    }
+                    else if (coldnuddle.materialCount < 1 && meet.materialCount < 1)
+                    {
+                        textpush("야! 생고기랑 냉면이 부족하잖아!");
+                        return false;
+                    }
+                    else if (kimchi.materialCount < 1 && meet.materialCount < 1)
+                    {
+                        textpush("야! 김치랑 생고기가 부족하잖아!");
+                        return false;
+                    }
+                    else if (coldnuddle.materialCount < 1 && kimchi.materialCount < 1)
+                    {
+                        textpush("야! 김치랑 냉면이 부족하잖아!");
+                        return false;
+                    }
+                    else if (coldnuddle.materialCount < 1)
+                    {
+                        textpush("야! 냉면이 부족하잖아!");
+                        return false;
+                    }
+                    else if (meet.materialCount < 1)
+                    {
+                        textpush("야! 생고기가 부족하잖아!");
+                        return false;
+                    }
+                    else if (kimchi.materialCount < 1)
+                    {
+                        textpush("야! 김치가 부족하잖아!");
+                        return false;
+                    }
+                    else
+                    {
+                        info.materialCount -= realname.material재료비;
+                        coldnuddle.materialCount -= 1;
+                        meet.materialCount -= 1;
+                        kimchi.materialCount -= 1;
+                        textpush("육쌈냉면을 만들기 위해 냉면 1개, 김치 1개, 생고기 1개가 사용되었습니다.");
+                    }
+                }
+                else if (realname.materialName == "브리또")
+                {
+                    if (samgyub.materialCount < 1 && jeon.materialCount < 1)
+                    {
+                        textpush("야! 재료가 부족하잖아!");
+                        return false;
+                    }
+                    else if (samgyub.materialCount < 1)
+                    {
+                        textpush("야! 삼겹살이 부족하잖아!");
+                        return false;
+                    }
+                    else if (jeon.materialCount < 1)
+                    {
+                        textpush("야! 김치전이 부족하잖아!");
+                        return false;
+                    }
+                    else
+                    {
+                        info.materialCount -= realname.material재료비;
+                        jeon.materialCount -= 1;
+                        samgyub.materialCount -= 1;
+                        textpush("브리또를 만들기 위해 김치전 1개, 삼겹살 1개가 사용되었습니다.");
+                    }
+                }
+                else if (realname.materialName == "돈까스")
+                {
+                    if (samgyub.materialCount < 2 && mix.materialCount < 3)
+                    {
+                        textpush("야! 재료가 부족하잖아!");
+                        return false;
+                    }
+                    else if (samgyub.materialCount < 2)
+                    {
+                        textpush("야! 삼겹살이 " + (2 - samgyub.materialCount) + "개 부족하잖아!");
+                        return false;
+                    }
+                    else if (mix.materialCount < 3)
+                    {
+                        textpush("야! 밀가루가 " + (3 - mix.materialCount) + "개 부족하잖아!");
+                        return false;
+                    }
+                    else
+                    {
+                        mix.materialCount -= 3;
+                        samgyub.materialCount -= 2;
+                        info.materialCount -= realname.material재료비;
+                        textpush("돈까스를 만들기 위해 밀가루 3개, 삼겹살 2개가 사용되었습니다.");
+                    }
+                }
+                if (realname.materialName == "밀가루" || realname.materialName == "김치" || realname.materialName == "생고기")
+                {
+                    --realname.materialTempTime;
+                    info.materialCount -= realname.material재료비;
+                }
+                else
+                {
+                    realname.materialTime = (realname.materialCount + 1);
+                    realname.materialTempTime = (realname.materialTime - 1);
+                    if(realname.materialCount == 0)
+                    {
+                        realname.materialTime = 2;
+                        realname.materialTempTime = 1;
+                    }
+                }
+                var auto = setInterval(function()
+                {
+                    if (ForceStop == true)
+                    {
+                        clearInterval(auto);
+                        return false;
+                    }
+                    --realname.materialTempTime;
+                    if (realname.materialTempTime <= 0)
+                    {
+                        clearInterval(auto);
+                        if (Lucky > 0)
+                        {
+                            console.log(Lucky);
+                            var TempLucky = Math.floor(Math.random()*Lucky)+1;
+                            console.log(TempLucky);
+                            if (TempLucky == 2)
+                            {
+                                realname.materialCount += LuckyCount;
+                                textpush("향상된 기술력으로 " + realname.materialName + "을(를) " + addComma(LuckyCount) + "개 더 추가적으로 만들었습니다!");
+                                textpush("이 음식은 상하는시간이 " + addComma(TechnicalFoodPoison / 1000) + "배 느립니다.");
+                                for (var i = LuckyCount; i > 0; --i)
+                                {
+                                    poison(realname.materialName, parseInt(info.materialTime*(TechnicalFoodPoison / 1000)));
+                                }
+                            }
+                        }
+                        realname.materialTempTime = realname.materialTime;
+                        ++realname.material오늘누적음식제작횟수;
+                        ++realname.material계속누적음식제작횟수;
+                        ++realname.materialCount;
+                        textpush("♨ " + realname.materialName + " 생성완료! [현재수량 : " + realname.materialCount + "개]");
+                        poison(realname.materialName, info.materialTime);
+                        return false;
+                    }
+                }, PartTime);
+
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        function minussecError()
+        {
+            var temparr = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+            for (var i = 0; i < 9; i++)
+            {
+                if (temparr[i].materialTempTime <= 0)
+                {
+                    temparr[i].materialTempTime = temparr[i].materialTime;
+                }
+            }
+        }
+
+        function customerTimer(CusNum)
+        {
+            var tempcusnum = (CusNum+1);
+            $(function()
+            {
+                var auto14 = setInterval(function()
+                {
+                    if(OrderCount >= 10)
+                    {
+                        $("#visit").text("다음손님방문까지 남은시간 : ∞");
+                        clearInterval(auto14);
+                        customer();
+                        return false;
+                    }
+                    --tempcusnum;
+                    $("#visit").text("다음손님방문까지 남은시간 : " + tempcusnum);
+                    if (tempcusnum == 0)
+                    {
+                        ask();
+                        customer();
+                        clearInterval(auto14);
+                        return false;
+                    }
+                    else if (ForceStop == true)
+                    {
+                        $("#visit").text("다음손님방문까지 남은시간 : 0");
+                        clearInterval(auto14);
+                        return false;
+                    }
+                }, 1000);
+            });
+        }
+
+        function customer()
+        {
+            var CusNum = Math.floor(Math.random()*Guest)+20+(Trust*9);
+            customerTimer(CusNum);
+        }
+        function ask()
+        {
+            if (ForceStop == true)
+            {
+                return false;
+            }
+            var listfood = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+            var FoodSel = Math.floor(Math.random()*(3+addFoodmenu));
+            var Count = Math.floor(Math.random()*2 + CountAttack)+1;
+            var str;
+            var Timer = Math.floor(Math.random()*71)+(135 - TimeAttack);
+            if (FoodSel == 4 || FoodSel == 6)
+            {
+                str = "★ - " + Timer + "초 안에 " + listfood[FoodSel].materialName + " " + Count + "그릇 주세요!";
+            }
+            else if (FoodSel == 3 || FoodSel == 7)
+            {
+                str = "★ - " + Timer + "초 안에 " + listfood[FoodSel].materialName + " " + Count + "개 주세요!";
+            }
+            else if (FoodSel == 8 || FoodSel == 5)
+            {
+                str = "★ - " + Timer + "초 안에 " + listfood[FoodSel].materialName + " " + Count + "인분 주세요!";
+            }
+            else if (FoodSel == 2)
+            {
+                str = "★ - " + Timer + "초 안에 " + listfood[FoodSel].materialName + " " + Count + "근 주세요!";
+            }
+            else if (FoodSel == 1)
+            {
+                str = "★ - " + Timer + "초 안에 " + listfood[FoodSel].materialName + " " + Count + "Kg 주세요!";
+            }
+            else if (FoodSel == 0)
+            {
+                str = "★ - " + Timer + "초 안에 " + listfood[FoodSel].materialName + " " + Count + "포대 주세요!";
+            }
+            $(function()
+            {
+                for (var i = 0; i < 10; i++)
+                {
+                    var temp = $("#orderPaper tr td:eq("+ i +")").text();
+                    if (temp == "--")
+                    {
+                        $("#orderPaper tr td:eq("+ i +")").text(str);
+                        order(listfood[FoodSel], Count, Timer, i, str);
+                        break;
+                    }
+                }
+            });
+        }
+
+        function order(food, count, timer, OTlist, str)
+        {
+            var ordertime = timer;
+            ++OrderCount;
+            $(function()
+            {
+                var auto3 = setInterval(function()
+                {
+                    if (ForceStop == true)
+                    {
+                        clearInterval(auto3);
+                        return false;
+                    }
+                    if (timer == 0)
+                    {
+                        OrderCount -= 1;
+                        --Life;
+                        ++Trust;
+                        ++TodayTrust;
+                        textpush(": ( 실망감 증가 - (현재 실망감 : " + Trust + ")");
+                        $("#orderPaper tr td:eq("+ OTlist +")").text("--");
+                        $("#orderPaper tr td:eq(" + OTlist + ")").attr("style", "margin-left: 4em; color : black;");
+                        textpush(": ( [" + ordertime + "초, " + food.materialName + " " + count + "개 주문자] - 짜증나 나 갈래.");
+                        clearInterval(auto3);
+                        return false;
+                    }
+                    else if (food.materialCount >= count)
+                    {
+                        ++AccSell;
+                        OrderCount -= 1;
+                        food.materialCount -= count;
+                        info.materialCount += (food.materialPrice * count);
+                        food.material오늘총이익 += (food.materialPrice * count);
+                        food.material누적총이익 += (food.materialPrice * count);
+                        $("#orderPaper tr td:eq("+ OTlist +")").text("--");
+                        $("#orderPaper tr td:eq(" + OTlist + ")").attr("style", "margin-left: 4em; color : black;");
+                        if (Trust > 0 && Trust < 10)
+                        {
+                            --Trust;
+                            textpush(": ) 실망감 감소 - (현재 실망감 : " + Trust + ")");
+                        }
+                        if (TodayTrust > 0)
+                        {
+                            --TodayTrust;
+                        }
+                        clearInterval(auto3);
+                        textpush("└ " + addComma(food.materialPrice * count) + "원 획득!");
+                        textpush(": ) [" + ordertime + "초, " + food.materialName + " " + count + "개 주문자] - 감사합니다!");
+                        return false;
+                    }
+                    --timer;
+                    var str1 = str.slice(str.indexOf("초"), (str.indexOf("!")+1))
+                    var str2 = "★ - " + timer + str1;
+                    $("#orderPaper tr td:eq(" + OTlist + ")").text(str2);
+                    if (timer <= 30)
+                    {
+                        $("#orderPaper tr td:eq(" + OTlist + ")").attr("style", "font-size : " + mainfontsize + "px; margin-left: 4em; color : red;");
+                    }
+                    else
+                    {
+                        $("#orderPaper tr td:eq(" + OTlist + ")").attr("style", "font-size : " + mainfontsize + "px; margin-left: 4em; color : black;");
+                    }
+                }, 1000);
+            });
+        }
+        function poison(str, value)
+        {
+            var realname;
+            if (str == "밀가루")
+            {
+                realname = mix;
+            }
+            else if (str == "김치")
+            {
+                realname = kimchi;
+            }
+            else if (str == "생고기")
+            {
+                realname = meet;
+            }
+            else if (str == "김치전")
+            {
+                realname = jeon;
+            }
+            else if (str == "냉면")
+            {
+                realname = coldnuddle;
+            }
+            else if (str == "삼겹살")
+            {
+                realname = samgyub;
+            }
+            else if (str == "육쌈냉면")
+            {
+                realname = meetnoodle;
+            }
+            else if (str == "브리또")
+            {
+                realname = brit;
+            }
+            else if (str == "돈까스")
+            {
+                realname = pork;
+            }
+            else
+            {
+                realname = mix;
+            }
+            value *= 10;
+            var poisontime = setInterval(function()
+            {
+                if (GameOver == true)
+                {
+                    clearInterval(poisontime);
+                    return false;
+                }
+                // if (ForceStop == true)
+                // {
+                //     clearInterval(poisontime);
+                //     return false;
+                // }
+                //console.log(value);
+                --value;
+                if (realname.materialCount >= 1 && value == 0)
+                {
+                    $(function()
+                    {
+                        clearInterval(poisontime);
+                        ++realname.material상한음식수;
+                        ++realname.material누적상한음식수;
+                        --realname.materialCount;
+                        
+                        textpush(": ( [" + realname.materialName + "]이(가) 상했습니다! (" + realname.materialName + " 1개 차감) 현재 " + realname.materialName + " : " + addComma(realname.materialCount) + "개");
+                    });
+                }
+                else if (realname.materialCount <= 0)
+                {
+                    clearInterval(poisontime);
+                    return false;
+                }
+            }, 100);
+        }
+        $(function()
+        {
+            $("#marketDay").text("요리가게 " + Wave + "일차 오픈!");
+        });
+        console.log(": ) 요리가게 " + Wave + "일차 오픈! 곧 손님이 옵니다.")
+        function stat() // 이부분은 새로운 windows창에 오픈출력
+        {
+            var status = window.open("", "", "width = 500, height = 600");
+            var list2 = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+            var TodayACC1 = 0;
+            var TodayACC2 = 0;
+            var TodayACC3 = 0;
+            status.document.write("<br>");
+            status.document.write("---------------------[영업 " + Wave + "일차]---------------------");
+            status.document.write("<br>");
+            status.document.write("<br>");
+            for (var i = 0; i < 3+addFoodmenu; ++i)
+            {
+                TodayACC1 += (list2[i].material오늘누적음식제작횟수 * list2[i].material재료비); // 
+                TodayACC2 += list2[i].material오늘총이익;
+                TodayACC3 += list2[i].material상한음식수;
+                status.document.write("└ 오늘하루 [" + list2[i].materialName + "] 생성에 소모된 비용 : " + addComma(list2[i].material오늘누적음식제작횟수 * list2[i].material재료비) + "원");
+            status.document.write("<br>");
+                status.document.write("└ 오늘하루 상한 [" + list2[i].materialName + "] 갯수 : " + addComma(list2[i].material상한음식수) + "개");
+            status.document.write("<br>");
+                status.document.write("└ 오늘하루 상한 [" + list2[i].materialName + "] 때문에 생긴 손실비용 : " + addComma((list2[i].material재료비 * list2[i].material상한음식수)) + "원");
+            status.document.write("<br>");
+                status.document.write("└ 오늘하루 [" + list2[i].materialName + "] 팔아서 생긴 이익 : " + addComma(list2[i].material오늘총이익) + "원");
+            status.document.write("<br>");
+            }
+            for (var i = 0; i < 3+addFoodmenu; ++i)
+            {
+                status.document.write("└ 지금까지 [" + list2[i].materialName + "] 생성에 소모된 비용 : " + addComma(list2[i].material계속누적음식제작횟수 * list2[i].material재료비) + "원");
+            status.document.write("<br>");
+                status.document.write("└ 지금까지 상한 [" + list2[i].materialName + "] 갯수  : " + addComma(list2[i].material누적상한음식수) + "개");
+            status.document.write("<br>");
+                status.document.write("└ 지금까지 상한 [" + list2[i].materialName + "] 때문에 생긴 손실비용 : " + addComma(list2[i].material누적상한음식수 * list2[i].material재료비) + "원");
+            status.document.write("<br>");
+                status.document.write("└ 지금까지 [" + list2[i].materialName + "] 팔아서 생긴 이익 : " + addComma(list2[i].material누적총이익) + "원");
+            status.document.write("<br>");
+            }
+            AlwaysAcc1 += TodayACC1;
+            AlwaysAcc2 += TodayACC2;
+            AlwaysAcc3 += TodayACC3;
+            status.document.write("<br>");
+            status.document.write("-------[현재 시간 : 영업 " + Wave + "일째 되는 밤.. 정산리스트]-------");
+            status.document.write("<br>");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 음식생성에 소모한 비용 : " + addComma(TodayACC1) + "원");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 음식판매 총이익 : " + addComma(TodayACC2) + "원");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 상한음식 수 : " + addComma(TodayACC3) + "개");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 손님에게 쌓인 실망감 : " + addComma(TodayTrust) + "번");
+            status.document.write("<br>");
+            status.document.write("Total] 지금까지 음식생성에 소모한 비용 : " + addComma(AlwaysAcc1) + "원");
+            status.document.write("<br>");
+            status.document.write("Total] 지금까지 음식판매 총이익 : " + addComma(AlwaysAcc2) + "원");
+            status.document.write("<br>");
+            status.document.write("Total] 지금까지 상한음식 수 : " + addComma(AlwaysAcc3) + "개");
+            status.document.write("<br>");
+            status.document.write("Total] 지금까지 손님에게 쌓인 실망감 : " + addComma(Trust) + "번");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 기타 이익 : " + addComma(ETCReveune) + "원");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 알바생 일당 : " + addComma(parseInt(PartTimeWage))+ "원");
+            status.document.write("<br>");
+            status.document.write("Total] 오늘하루 기타 손실비용 : " + addComma(ETCDamage) + "원");
+            status.document.write("<br>");
+            status.document.write("Total] 정산 - 현재 가지고 있는 돈 : " + addComma(info.materialCount)+ "원");
+            status.document.write("<br>");
+            status.document.write("<br>");
+            status.document.write("([판매재개]를 통해 다음날 영업을 시작할 수 있습니다.)");
+            status.document.write("<br>");
+            status.document.write("<br>");
+            //info.materialCount -= (TodayACC2 - (TodayACC2 * (1-0.01*PartTimeCount))); // 이 부분은 나의 총이익에서 알바생이 일부분 떼먹는 구조
+        }
+        function NextWave()
+        {
+            if  (Guest <= 1)
+            {
+                Guest = 1;
+            }
+            else
+            {
+                Guest -= 2;
+            }
+            if (TimeAttack >= 110)
+            {
+                TimeAttack = 110;
+            }
+            else
+            {
+                TimeAttack += 2;
+            }
+            WaveADD = true;
+            ForceStop = true;
+            info.materialCount -= parseInt(PartTimeWage);
+            $(function()
+            {
+                $("#marketDay").text("요리가게 " + Wave + "일차 밤");
+            });
+            stat();
+        }
+        function buy2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            $(function()
+            {
+                if (selective)
+                {
+                    $("body").not("button").css({"backgroundColor" : "#060042", "color" : "#E5D85C"});
+                    for (var i = 0; i < 10; i++)
+                    {
+                        $("#orderPaper tr td:eq("+ i +")").text("--");
+                    }
+                    ETCDamage += info.materialName;
+                    info.materialCount -= info.materialName;
+                    NextWave();
+                    info.materialTime += 60;
+                    info.materialName += 150000;
+                    textpush(": ) 냉장고 구매 완료! 미리 만들어둔 음식은 영향을 받지 않습니다. (최대 보관가능시간 : " + (info.materialTime / 60) + "분)");
+                    // console.log(": ) 냉장고 구매 완료! 미리 만들어둔 음식은 영향을 받지 않습니다. (최대 보관가능시간 : " + (info.materialTime / 60) + "분");
+                    return false;
+                }
+                else
+                {
+                    
+                    textpush("냉장고 구매를 취소했습니다!");
+                    return false;
+                }
+            });
+        }
+        function buy()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (ForceStop == true)
+            {
+                
+                textpush("휴식시간 입니다.");
+                return false;
+            }
+            if (info.materialCount >= info.materialName)
+            {
+                if (AccSell >= (Math.pow(Wave, 2) - Wave))
+                {
+                    // sel = confirm("냉장고를 구매하면 오늘의 영업은 끝이 납니다 - (필요 금액 : " + addComma(info.materialName) + "원)");
+                    Pointer = 1;
+                    SelectQuestion = true;
+                    window1("냉장고를 구매하면 오늘의 영업은 끝이 납니다 - (필요 금액 : " + addComma(info.materialName) + "원)");
+                    return false;
+                }
+                else
+                {
+                    $(function()
+                    {
+                        
+                        textpush("└(오늘의 남은판매량 : " + ((Math.pow(Wave, 2) - Wave) - AccSell) + "번)");
+                        textpush("오늘의 할당량을 못채웠습니다! 더 일하세요!!");
+                    });
+                    return false;
+                }
+            }
+            else
+            {
+                $(function()
+                {
+                    textpush("돈 없는 거지녀석은 냉장고를 구매 할 자격 자체가 없습니다~");
+                });
+                return false;
+            }
+        }
+        function moneycon()
+        {
+            document.getElementById("money").title = "현재 돈 : " + addComma(info.materialCount) + "원";
+            return true;
+        }
+        function moneygive()
+        {
+            info.materialCount += 100000000;
+            console.log(": ) 돈 얻기 성공! (현재 돈 : " + addComma(info.materialCount) + "원)");
+            console.log("");
+            return true;
+        }
+        function addComma(num)
+        {
+            var regexp = /\B(?=(\d{3})+(?!\d))/g;
+            return num.toString().replace(regexp, ',');
+        }
+        //-----------------------------------------------------------------------------------------------------------------------------------------
+        function list() // 이부분은 누르면 새로고침 되어, 원래 떠있는 곳(나의공간)에서 수치만 수정되게. 버튼 이름도 새로고침으로 수정******
+        {
+            $(function()
+            {
+                var auto15 = setInterval(function()
+                {
+                    // if (SelectQuestion)
+                    // {
+                    //     return false;
+                    // }
+                    if (ForceStop == true)
+                    {
+                        clearInterval(auto15);
+                        return false;
+                    }
+                    var list1 = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+                    for (var i = 0; i < 3+addFoodmenu; ++i)
+                    {
+                        if (list1[i].materialTempTime == list1[i].materialTime)
+                        {
+                            $("#mySpace"+i).text(" " + list1[i].materialName + " | 수량 : " + addComma(list1[i].materialCount) + "개 / 생성까지 남은시간 : --");
+                        }
+                        else
+                        {
+                            $("#mySpace"+i).text(" " + list1[i].materialName + " | 수량 : " + addComma(list1[i].materialCount) + "개 / 생성까지 남은시간 : " + addComma((list1[i].materialTempTime)-1) + "초");
+                        }
+                    }
+                    $("#mySpace" + (3+addFoodmenu)).text(" 현재 주문량 : " + OrderCount);
+                    $("#mySpace" + (4+addFoodmenu)).text(" 음식이 상하기까지 걸리는 시간 : " + addComma((info.materialTime / 60)) + "분");
+                    if (PartTimeCount > 0)
+                    {
+                        $("#mySpace" + (5+addFoodmenu)).text(" 알바생으로 인한 음식 생성속도 : " + parseFloat(1000 / PartTime) + "배");
+                    }
+                    else
+                    {
+                        $("#mySpace" + (5+addFoodmenu)).text(" 6 ");
+                    }
+                    if (Lucky > 0)
+                    {
+                        $("#mySpace" + (6+addFoodmenu)).text(" 음식을 추가적으로 얻을 확률 : " + (100 / Lucky) + "%");
+                        $("#mySpace" + (7+addFoodmenu)).text(" 음식을 추가적으로 얻는 갯수 : " + addComma(LuckyCount) + "개");
+                        $("#mySpace" + (8+addFoodmenu)).text(" 추가적으로 얻은 음식이 상하기까지 걸리는 시간 : " + addComma(parseInt((info.materialTime*(TechnicalFoodPoison / 1000)))) + "초");
+                    }
+                }, 500);
+            });
+            //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        }
+        function cleaner()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (GameOver == true && Brocer == true)
+            {
+                Pointer = 2;
+                SelectQuestion = true;
+                window1("브로커에게 돈을 지급하고 가게를 살리시겠습니까? (필요금액 : 10,000,000원)"); // 선택문
+                return false;
+            }
+            else
+            {
+                $(function()
+                {
+                    for(var i = 0; i < 15; i++)
+                    {
+                        $("#recordPaper" + i).text((i+1) + " ");
+                    }
+                });
+                return false;
+            }
+        }
+
+        function cleaner2(selective)
+        {
+            if (selective)
+            {
+                Trust = 0;
+                info.materialCount -= 10000000;
+                GameOver = false;
+                Brocer = false;
+                WaveADD = true;
+                OrderCount = 0;
+                TimeAttack = 0;
+                Guest += 15;
+                Wage();
+                LifeLoop();
+                var list4 = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+                for (var i = 0; i < 9; ++i)
+                {
+                    list4[i].materialCount = 0;
+                }
+                
+                textpush("생성했던 음식은 모두 없어집니다.");
+                textpush("[판매재개]를 통해 가게를 다시 오픈하세요.");
+            }
+            else // 브로커에게 돈을 지급 안할시 게임 종료 구문.
+            {
+                
+                
+                textpush("-끝-");
+                
+                
+            }
+        }
+
+        function givefood()
+        {
+            ++mix.materialCount;
+            ++kimchi.materialCount;
+            ++meet.materialCount;
+            ++jeon.materialCount;
+            ++coldnuddle.materialCount;
+            ++samgyub.materialCount;
+            ++meetnoodle.materialCount;
+            ++brit.materialCount;
+            ++pork.materialCount;
+        }
+        function minusfood()
+        {
+            --mix.materialCount;
+            --kimchi.materialCount;
+            --meet.materialCount;
+            --jeon.materialCount;
+            --coldnuddle.materialCount;
+            --samgyub.materialCount;
+            --meetnoodle.materialCount;
+            --brit.materialCount;
+            --pork.materialCount;
+        }
+        function LifeLoop()
+        {
+            var LifeLoop2 = setInterval(function()
+            {
+                if (Life <= 0)
+                {
+                    $(function()
+                    {
+                        for(var i = 0; i < 15; i++)
+                        {
+                            $("#recordPaper" + i).text((i+1) + " ");
+                        }
+                    });
+                    ForceStop = true;
+                    GameOver = true;
+                    stat();
+                    textpush("-----------------------------------------------------");
+                    textpush("-- 게임오버 --");
+                    textpush("불량 음식업소로 판단되어 영업영구정지를 내립니다.");
+                    textpush("당신은 누적 50번 이상 고객을 놓쳤습니다.");
+                    textpush("-----------------------------------------------------");
+                }
+                else if (Trust >= 10)
+                {
+                    clearInterval(LifeLoop2);
+                    $(function()
+                    {
+                        for(var i = 0; i < 15; i++)
+                        {
+                            $("#recordPaper" + i).text((i+1) + " ");
+                        }
+                    });
+                    ForceStop = true;
+                    GameOver = true;
+                    stat();
+                    textpush("-----------------------------------------------------");
+                    textpush("-- 게임오버 --");
+                    textpush("영업 미숙으로 판단되어 영업영구정지를 내립니다.");
+                    textpush("당신은 고객들의 실망감을 10번 연속 쌓았습니다.");
+                    textpush("-----------------------------------------------------");
+                    var auto5 = setTimeout(function()
+                    {
+                        var temp2 = Math.floor(Math.random()*3);
+                        if (temp2 >= 1 && AlwaysAcc2 > 0)
+                        {
+                            
+                            textpush("... 하지만..");
+                            var auto6 = setTimeout(function()
+                            {
+                                textpush("당신은 운좋게도... 당신의 음식에 만족해하던 손님 중..");
+                                var auto7 = setTimeout(function()
+                                {
+                                    textpush("브로커가 당신을 찾아왔습니다..");
+                                    var auto8 = setTimeout(function()
+                                    { 
+                                        textpush("[화면초기화]버튼을 눌러서, 돈을 지급하고 불법으로 가게를 다시 살릴 수 있습니다! (돈이 없어도 대출형식으로 지급됩니다.)");
+                                        Brocer = true;
+                                    }, 3000);
+                                }, 3000);
+                            }, 3000);
+                        }   
+                    }, 4000);
+                }
+            }, 1000);
+        }
+        function Wage()
+        {
+            if (GameOver || ForceStop)
+            {
+                clearInterval(auto4);
+                return false;
+            }
+            var auto4 = setInterval(function()
+            {
+                if (GameOver || ForceStop)
+                {
+                    clearInterval(auto4);
+                    return false;
+                }
+                if (PartTimeCount <= 0)
+                {
+                    clearInterval(auto4);
+                    return false;
+                }
+                PartTimeWage += (PartTimeCount * 10);
+            }, 1000);
+        }
+        function Alba()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (GameOver == true)
+            {
+                alert("게임 오버");
+                return false;
+            }
+            if (info.materialCount >= PartTimePrice)
+            {
+                if (PartTimeCount >= 30)
+                {
+                    PartTimeCount = 30;
+                    //PartTimePrice = 0;
+                    PartTime = 250;
+                    
+                    textpush("더 이상 알바생을 고용 할 수 없습니다 욕심쟁이야!");
+                    return false;
+                }
+                else
+                {
+                    SelectQuestion = true;
+                    Pointer = 3;
+                    window1("알바생을 고용하시겠습니까? (필요금액 : " + addComma(PartTimePrice) + "원, 초급 : 10원)"); // 선택문
+                }
+            }
+            else
+            {
+                var temp = Math.floor(Math.random()*2);
+                
+                textpush("알바생 고용에 필요한 금액 : " + addComma(PartTimePrice) + "원");
+                if (temp == 0)
+                {
+                    textpush("돈없는 거지가 무슨 알바생이람 ~");
+                }
+                else
+                {
+                    textpush("시급도 안챙겨줄려고 하면서 알바생 고용하려고? 양심 어디에...?");
+                }
+                return false;
+            }
+        }
+
+        function Alba2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            if (selective)
+            {
+                TempWave = Wave;
+                ETCDamage += PartTimePrice;
+                PartTimeCount += 1;
+                PartTime -= 25;
+                info.materialCount -= PartTimePrice;
+                PartTimePrice += 5000;
+                textpush("알바생을 고용하였습니다. 음식 생성속도가 소폭상승 합니다.");
+                if (PartTimeCount == 1)
+                {
+                    Wage();
+                    textpush("알바생을 고용하면, 초급제로 1초당 10원 누적되어 그날 하루가 끝나면 누적된 초급이, 가지고 있는 돈에서 차감됩니다."); //초급 수정요망 2.3원 -> n원
+                }
+            }
+            else
+            {
+                textpush("알바생을 고용을 취소하였습니다.");
+                return false;
+            }
+        }
+
+        function AlbaFire()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (GameOver == true)
+            {
+                alert("게임 오버");
+                return false;
+            }
+            if (TempWave == Wave)
+            {
+                textpush("알바생을 1명이상 고용한 당일에는 그 어떤 알바생도 해고 할 수 없습니다!");
+                return false;
+            }
+            if (info.materialCount >= 10000)
+            {
+                if (PartTimeCount > 0)
+                {
+                    SelectQuestion = true;
+                    Pointer = 4;
+                    window1("알바생을 해고하시겠습니까? (되돌려받는 금액 : " + addComma((PartTimePrice - 5000)) + "원"); //선택문
+                }
+                else
+                {
+                    textpush("해고 할 알바생이 없습니다.");
+                    return false
+                }
+            }
+            else
+            {
+                var temp = Math.floor(Math.random()*2);
+                if (temp == 0)
+                {
+                    textpush("알바생에게 줄 퇴직금조차 없는 당신의 지갑상태는...절래절래");
+                    return false;
+                }
+                else
+                {
+                    textpush("알바생에게 퇴직금을 줄 돈이 없어서 해고를 못하네..ㅋ!");
+                    return false;
+                }
+                textpush("알바생 고용에 필요한 금액 : " + addComma(PartTimePrice) + "원");
+                return false;
+            }
+        }
+
+        function AlbaFire2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            if (selective)
+            {
+                ETCReveune += (PartTimePrice - 5000);
+                PartTimeCount -= 1;
+                PartTime += 25;
+                PartTimePrice -= 5000;
+                info.materialCount += PartTimePrice;
+                if (PartTimeCount == 0)
+                {
+                    PartTime = 1000;
+                    PartTimeCount = 0;
+                    PartTimePrice = 50000;
+                }
+                textpush("알바생을 짤랐습니다. 음식 생성속도가 감소 합니다.");
+            }
+            else
+            {
+                textpush("알바생을 해고를 취소하였습니다.");
+                return false;
+            }
+
+        }
+
+        function Stop()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (ForceStop == true)
+            {
+                textpush("이미 휴식시간 입니다.");
+                return false;
+            }
+            else
+            {
+                SelectQuestion = true;
+                Pointer = 5;
+                window1("생성하고있는 음식은 모두 취소되며 주문도 전부 취소됩니다. 쉬는시간에는 음식을 생성하는 행위는 할 수 없습니다. (음식이 상하는 시간은 계속 흐릅니다.)"); //선택문
+            }
+        }
+        function Stop2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            if (selective)
+            {
+                ForceStop = true;
+                $(function()
+                {
+                    $("#marketDay").text("요리가게 " + Wave + "일차 쉬는시간...")
+                });
+                for (var i = 0; i < 10; i++)
+                {
+                    $(function()
+                    {
+                        $("#orderPaper tr td:eq("+ i +")").text("--");
+                    });
+                }
+                var list3 = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+                for (var i = 0; i < 9; ++i)
+                {
+                    list3[i].materialTempTime = list3[i].materialTime;
+                }
+                Life -= OrderCount;
+                Trust += OrderCount;
+                TodayTrust += OrderCount;
+                textpush("주문수량 만큼 실망감이 증가합니다 ( +" + OrderCount + "), (지금까지 쌓인 실망감 : " + Trust + "번)");
+                OrderCount = 0;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        function Cancel()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (ForceStop == false)
+            {
+                textpush("이미 영업중입니다.");
+                return false;
+            }
+            if (GameOver == true)
+            {
+                alert("게임 오버");
+                return false;
+            }
+            else
+            {
+                SelectQuestion = true;
+                Pointer = 6;
+                window1("가게를 오픈하시겠습니까?"); // 선택문
+            }
+        }
+
+        function Cancel2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            if (selective)
+            {
+                var list4 = [mix, kimchi, meet, jeon, coldnuddle, samgyub, meetnoodle, brit, pork];
+                if (WaveADD == true)
+                {
+                    $(function()
+                    {
+                        $("body").not("button").css({"backgroundColor" : "white", "color" : "black"});
+                        $("span").css({"color" : "blue"});
+                        $("h1").css({"color" : "red"});
+                    });
+                    for (var i = 0; i < 9; ++i)
+                    {
+                        list4[i].material상한음식수 = 0;
+                        list4[i].material오늘누적음식제작횟수 = 0;
+                        list4[i].material오늘총이익 = 0;
+                    }
+                    OrderCount = 0;
+                    PartTimeWage = 0;
+                    TodayTrust = 0;
+                    ETCDamage = 0;
+                    WaveADD = false;
+                    ++Wave;
+                    if (Wave % 3 == 0)
+                    {
+                        ++CountAttack;
+                        if (addFoodmenu >= 6)
+                        {
+                            addFoodmenu = 6;
+                        }
+                        else
+                        {
+                            ++addFoodmenu;
+                            
+                            textpush("◈◈요리가게에 [" + list4[2+addFoodmenu].materialName + "] 요리가 추가되었습니다!◈◈");
+                        }
+                    }
+                    AccSell = 0;
+                    $(function()
+                    {
+                        $("#marketDay").text("요리가게 " + Wave + "일차 영업중!");
+                    });
+                }
+                else
+                {
+                    $(function()
+                    {
+                        $("#marketDay").text("요리가게 " + Wave + "일차 영업중!");
+                    });
+                }
+                for (var i = 0; i < 9; ++i)
+                {
+                        list4[i].materialTempTime = list4[i].materialTime;
+                }
+                ForceStop = false;
+                ask();
+                customer();
+                list();
+                if (PartTimeCount > 0)
+                {
+                    Wage();
+                }
+            }
+        }
+
+        function Technical()
+        {
+            if (SelectQuestion)
+            {
+                return false;
+            }
+            if (GameOver == true)
+            {
+                alert("게임 오버");
+                return false;
+            }
+            if (info.materialCount >= LuckyCost)
+            {
+                SelectQuestion = true;
+                Pointer = 7;
+                window1("요리세미나를 수강하시겠습니까? - (필요금액 : " + addComma(LuckyCost) + "원)");
+            }
+            else
+            {
+                textpush("└요리세미나 수강에 필요한 금액 : " + addComma(LuckyCost) + "원");
+                textpush("돈도 없는주제에 기술까지 훔쳐 배울려고 하네.. 얘 완전 도둑놈심보 아냐?");
+                return false;
+            }
+        }
+
+        function Technical2(selective)
+        {
+            if (GameOver == true)
+            {
+                return false;
+            }
+            if (selective)
+            {
+                info.materialCount -= LuckyCost;
+                ETCDamage += LuckyCost;
+                LuckyCost += 100000;
+                if (Lucky == 0)
+                {
+                    Lucky = 100;
+                    LuckyCount = 1;
+                    TechnicalFoodPoison = 1025;
+                    textpush("앞으로 낮은확률로 음식을 추가적으로 1개 얻습니다.");
+                    textpush("추가적으로 얻은 음식이 상하기까지 걸리는 시간이 소폭상승하였습니다.");
+                }
+                else
+                {
+                    if (Lucky <= 4)
+                    {
+                        textpush("※ - 더 이상 음식을 추가적으로 얻을 확률은 증가하지 않습니다.");
+                        Lucky = 4;
+                    }
+                    else
+                    {
+                        Lucky -= 4;
+                        textpush("음식을 추가적으로 얻을 확률이 증가하였습니다!");
+                    }
+                    ++TechnicalCount;
+                    if (TechnicalCount == 5)
+                    {
+                        TechnicalCount = 0;
+                        textpush("● - 앞으로 음식을 추가적으로 얻을 때 1개 더 얻습니다.");
+                        ++LuckyCount;
+                    }
+                    TechnicalFoodPoison += 25;
+                    textpush("추가적으로 얻은 음식이 상하기까지 걸리는 시간이 소폭상승하였습니다.");
+                }
+            }
+        }
+        /*-----------------window1의 제이쿼리----------------*/
+        $(function()
+        {
+            $("#yes").mouseenter(function()
+            {
+                $("#yes").attr("style", "background-color : gray; position: relative; transform: translate(0%);");
+            });
+            $("#yes").mouseleave(function()
+            {
+                $("#yes").attr("style", "background-color : lightgray; position: relative; transform: translate(0%);");
+            });
+            $("#no").mouseenter(function()
+            {
+                $("#no").attr("style", "background-color : gray; position: relative; transform: translate(0%);");
+            });
+            $("#no").mouseleave(function()
+            {
+                $("#no").attr("style", "background-color : lightgray; position: relative; transform: translate(0%);");
+            });
+            $("#yes").click(function()
+            {
+                $("#yes").attr("style", "background-color : black; color : white; position: relative; transform: translate(0%);");
+                var auto12 = setTimeout(function()
+                {
+                    $("#sel").attr({"style": "display : none"});
+                    sel = true;
+                    if (Pointer == 0)
+                    {
+                        make2(sel);
+                    }
+                    else if (Pointer == 1)
+                    {
+                        buy2(sel); //if문으로 질문에 따라 제어
+                    }
+                    else if (Pointer == 2)
+                    {
+                        cleaner2(sel);
+                    }
+                    else if (Pointer == 3)
+                    {
+                        Alba2(sel);
+                    }
+                    else if (Pointer == 4)
+                    {
+                        AlbaFire2(sel);
+                    }
+                    else if (Pointer == 5)
+                    {
+                        Stop2(sel);
+                    }
+                    else if (Pointer == 6)
+                    {
+                        Cancel2(sel);
+                    }
+                    else if (Pointer == 7)
+                    {
+                        Technical2(sel);
+                    }
+                    Pointer = null;
+                    SelectQuestion = false;
+                    return false;
+                }, 100);
+            });
+            $("#no").click(function()
+            {
+                $("#no").attr("style", "background-color : black; color : white; position: relative; transform: translate(0%);");
+                var auto13 = setTimeout(function()
+                {
+                    $("#sel").attr({"style": "display : none"});
+                    sel = false;
+                    if (Pointer == 0)
+                    {
+                        make2(sel);
+                    }
+                    else if (Pointer == 1)
+                    {
+                        buy2(sel); //if문으로 질문에 따라 제어
+                    }
+                    else if (Pointer == 2)
+                    {
+                        cleaner2(sel);
+                    }
+                    else if (Pointer == 3)
+                    {
+                        Alba2(sel);
+                    }
+                    else if (Pointer == 4)
+                    {
+                        AlbaFire2(sel);
+                    }
+                    else if (Pointer == 5)
+                    {
+                        Stop2(sel);
+                    }
+                    else if (Pointer == 6)
+                    {
+                        Cancel2(sel);
+                    }
+                    else if (Pointer == 7)
+                    {
+                        Technical2(sel);
+                    }
+                    Pointer = null;
+                    SelectQuestion = false;
+                    return false;
+                }, 100);
+            });
+            $("#money").click(function()
+            {
+                textpush("지갑에 있는 돈 : " + addComma(info.materialCount) + "원");
+            });
+        });
+        /*-----------------window1의 제이쿼리----------------*/
+        if (mobile.indexOf("windows") >= 0)
+        {
+            document.write("현재 운영체제 : 윈도우");
+        }
+        else if (mobile.indexOf("android") >= 0)
+        {
+            document.write("현재 운영체제 : 안드로이드");
+        }
+        else if (mobile.indexOf("iphone") >= 0)
+        {
+            document.write("현재 운영체제 : 아이폰");
+        }
+        else if (mobile.indexOf("macintosh") >= 0)
+        {
+            document.write("현재 운영체제 : 매킨토시");
+        }
+        else if (mobile.indexOf("linux") >= 0)
+        {
+            document.write("현재 운영체제 : 리눅스");
+        }
+        else
+        {
+            document.write("현재 운영체제 : 알 수 없음 - (이 운영체제는 뭐지?)");
+        }
+        if (forever == 0)
+        {
+            forever = 1;
+            var auto9 = setTimeout(function()
+            {
+                LifeLoop();
+                list();
+                ask();
+                customer();
+            }, 100);
+        }
+        function hiderecord(select)
+        {
+            $(function()
+            {
+                if (select == "알림장")
+                {
+                    if($(".recordPaper").is(":visible"))
+                    {
+                        $("#btn1-1").attr("style", "display : none;");
+                        $("#btn1-2").attr("style", "display : initial;");
+                        $(".recordPaper").attr("style", "display: none; border: 1px solid black; width: 1000px;");
+                    }
+                    else
+                    {
+                        $("#btn1-1").attr("style", "display : initial;");
+                        $("#btn1-2").attr("style", "display : none;");
+                        $(".recordPaper").attr("style", "display: inline-block; border: 1px solid black; width: 1000px;");
+                    }
+                }
+                else if (select == "주문서")
+                {
+                    if($(".orderPaper").is(":visible"))
+                    {
+                        $("#btn2-1").attr("style", "display : none;");
+                        $("#btn2-2").attr("style", "display : initial;");
+                        $(".orderPaper").attr("style", "display: none; border: 1px solid black; width: 325px;");
+                    }
+                    else
+                    {
+                        $("#btn2-1").attr("style", "display : initial;");
+                        $("#btn2-2").attr("style", "display : none;");
+                        $(".orderPaper").attr("style", "display: inline-block; border: 1px solid black; width: 325px;");
+                    }
+                }
+                else
+                {
+                    if($(".mySpace").is(":visible"))
+                    {
+                        $("#btn3-1").attr("style", "display : none;");
+                        $("#btn3-2").attr("style", "display : initial;");
+                        $(".mySpace").attr("style", "display: none; border: 1px solid black; width: 450px;");
+                    }
+                    else
+                    {
+                        $("#btn3-1").attr("style", "display : initial;");
+                        $("#btn3-2").attr("style", "display : none;");
+                        $(".mySpace").attr("style", "display: inline-block; border: 1px solid black; width: 450px;");
+                    }
+                }
+            });
+        }
+        function fontsizeUpDown(UD)
+        {
+            $(function()
+            {
+                if((UD == 1 && mainfontsize >= 30) || (UD == 0 && mainfontsize < 6))
+                {
+                    return false;
+                }
+                else
+                {
+                    if(UD == 1)
+                    {
+                        ++mainfontsize;
+                    }
+                    else if (UD == 0)
+                    {
+                        --mainfontsize;
+                    }
+                    else
+                    {
+                        mainfontsize = 16;
+                    }
+                    $("body").not("#cursor").css("font-size", mainfontsize+"px");
+                    $("#marketDay").css("font-size", (mainfontsize+10)+"px");
+                    $("header > h1").css("font-size", (mainfontsize+16)+"px");
+                    $("header > h3").css("font-size", (mainfontsize+5)+"px");
+                    $("body:first").css("font-size", "16px");
+                }
+            })
+        }
+        //----------------------------------------------------------------------
+
+        $(function()
+        {
+            $("#cursorHelp").click(function()
+            {
+                FoodButton();
+            });
+        });
+
+        //----------------------------------------------------------------------
+        function FoodButton()
+        {
+            if (cursorMoving)
+            {
+                cursorMoving = false;
+                return false;
+            }
+            else
+            {
+                cursorMoving = true;
+                cursor = document.getElementById("cursor");
+                cursor.style.zIndex = 100;
+                document.onmousemove = function()
+                {
+                    if(cursorMoving)
+                    {
+                        cursor.style.left = (event.clientX+10) + "px";
+                        cursor.style.top = (event.clientY+10) + "px";
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body style="font-family: 함초롬돋움, 맑은고딕;">
+    <header>
+        <button onclick="fontsizeUpDown(1)">글꼴+</button><button onclick="fontsizeUpDown(2)">일괄</button><button onclick="fontsizeUpDown(0)">글꼴-</button>
+        <a href="Info.html" style="margin-left: 15px;" target="_blank">설명서</a><br>
+        <h1 style="text-align: center; color: red;">필수로 해야하는 것 <br> &gt; 팝업 및 리디렉션 : 허용 후, 새로고침 &lt;</h1>
+        <h3 style="text-align: center;"><b>모바일은 무관!</b></h3><br>
+        <div style="font-family: 함초롬돋움, 맑은고딕; text-align: center;">
+                       *^^* 게 어 려 운 개 임 *^^* <br><br><br>
+    
+    
+            [1] -   밀가루 생성 | [2] -   김치 생성 | [3] - 생고기 생성<br><br>
+            [4] -   김치전 생성 | [5] -   냉면 생성 | [6] - 삼겹살 생성<br><br>
+            [7] - 육쌈냉면 생성 | [8] - 브리또 생성 | [9] - 돈까스 생성<br><br>
+        </div>
+        <h4 style="text-align: center;">
+            <div style="font-family: 함초롬돋움, 맑은고딕;">
+                [4] - <span>[김치전]</span> = 밀가루 (1), 김치 (2) <br><br>
+                [5] - <span>[냉면]</span> = 밀가루 (1), 생고기 (1) <br><br>
+                [6] - <span>[삼겹살]</span> = 김치 (2), 생고기 (1)<br><br>
+                [7] - <span>[육쌈냉면]</span> = 김치 (1), 생고기 (1), 냉면 (1)<br><br>
+                [8] - <span>[브리또]</span> = 김치전 (1), 삼겹살 (1) <br><br>
+                [9] - <span>[돈까스]</span> = 밀가루 (3), 삼겹살 (2)<br><br>
+            </div>
+        </h4>
+        <hr>
+    </header>
+    <nav>
+        <!--채우세요!-->
+    </nav>
+    <section>
+        <br>
+        <h2 id="marketDay" style="text-align: center;"></h2>
+        <br>
+        <div id="block">
+            <div style="border: 1px solid black; width: 325px;" class="orderPaper">
+                <h3>주문서</h3>
+                <h4 id="visit">다음손님방문까지 남은시간 : </h4>
+                <table border="1" id="orderPaper" style="position: relative; left: 50%; transform: translate(-50%);">
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--0-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--1-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--2-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--3-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--4-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--5-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--6-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--7-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--8-->
+                    <tr><td style="margin-left: 4em;">--</td></tr> <!--9-->
+                </table>
+                <br><br>
+            </div>
+            <div class="recordPaper" style="display: initial; border: 1px solid black; width: 1000px;">
+                <h3>알림장</h3><br>
+                <table border="1" style="position : relative; left: 50%; transform: translate(-50%);">
+                    <tr><td style="margin-left: 4em;" id="recordPaper0"> 1 </td></tr> <!--0-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper1"> 2 </td></tr> <!--1-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper2"> 3 </td></tr> <!--2-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper3"> 4 </td></tr> <!--3-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper4"> 5 </td></tr> <!--4-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper5"> 6 </td></tr> <!--5-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper6"> 7 </td></tr> <!--6-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper7"> 8 </td></tr> <!--7-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper8"> 9 </td></tr> <!--8-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper9"> 10 </td></tr> <!--9-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper10"> 11 </td></tr> <!--10-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper11"> 12 </td></tr> <!--11-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper12"> 13 </td></tr> <!--12-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper13"> 14 </td></tr> <!--13-->
+                    <tr><td style="margin-left: 4em;" id="recordPaper14"> 15 </td></tr> <!--14-->
+                </table>
+                <br><button onclick="cleaner()">알림장 비우기</button><br><br>
+            </div>
+            <div style="display: initial; border: 1px solid black; width: 450px;" class="mySpace">
+                <h3>나의공간</h3>
+                <table border="1" style="position : relative; left: 50%; transform: translate(-50%);">  <!--style="border : 1px dashed black; text-align: center; margin-left: 2em; margin-right: 2em;"-->
+                    <tr><td id="mySpace0"> 1 </td></tr> <!--0-->
+                    <tr><td id="mySpace1"> 2 </td></tr> <!--1-->
+                    <tr><td id="mySpace2"> 3 </td></tr> <!--2-->
+                    <tr><td id="mySpace3"> 4 </td></tr> <!--3-->
+                    <tr><td id="mySpace4"> 5 </td></tr> <!--4-->
+                    <tr><td id="mySpace5"> 6 </td></tr> <!--5-->
+                    <tr><td id="mySpace6"> 7 </td></tr> <!--6-->
+                    <tr><td id="mySpace7"> 8 </td></tr> <!--7-->
+                    <tr><td id="mySpace8"> 9 </td></tr> <!--8-->
+                    <tr><td id="mySpace9"> 10 </td></tr> <!--9-->
+                    <tr><td id="mySpace10"> 11 </td></tr> <!--10-->
+                    <tr><td id="mySpace11"> 12 </td></tr> <!--11-->
+                    <tr><td id="mySpace12"> 13 </td></tr> <!--12-->
+                    <tr><td id="mySpace13"> 14 </td></tr> <!--13-->
+                    <tr><td id="mySpace14"> 15 </td></tr> <!--14-->
+                </table>
+                <!-- <br><button onclick="minussecError()">-1초 오류제거</button> -->
+                <br><br>
+            </div>
+        </div>
+    </section>
+    <section>
+        <br><br>
+        <div style="text-align: center;">
+            <div id="cursor" style="background-color: black; width: 104px; height: 103px; position: fixed; right: 50px; bottom: 50px; border-radius: 5px;">
+                <table style="position: fixed;">
+                    <tr><td style="width: 30px; height: 30px;"><button onclick="make(mix.materialName, 1)">1</button></td><td style="width: 30px; height: 30px;"><button onclick="make(kimchi.materialName, 2)">2</button></td><td style="width: 30px; height: 30px;"><button onclick="make(meet.materialName, 3)">3</button></td></tr>
+                    <tr><td style="width: 30px; height: 30px;"><button onclick="make(jeon.materialName, 4)">4</button></td><td style="width: 30px; height: 30px;"><button onclick="make(coldnuddle.materialName, 5)">5</button></td><td style="width: 30px; height: 30px;"><button onclick="make(samgyub.materialName, 6)">6</button></td></tr>
+                    <tr><td style="width: 30px; height: 30px;"><button onclick="make(meetnoodle.materialName, 7)">7</button></td style="width: 30px; height: 30px;"><td><button onclick="make(brit.materialName, 8)">8</button></td><td style="width: 30px; height: 30px;"><button onclick="make(pork.materialName, 9)">9</button></td></tr>
+                </table>
+                <div id="cursorHelp" style="background-color: teal; width: 30px; height: 30px; position: relative; right: 25px; bottom: 25px; border-radius: 5px;"></div>
+            </div>
+            <button onclick="buy()">냉장고 구매</button><button onclick="Alba()">알바생 고용</button><button onclick="AlbaFire()">알바생 해고</button><button onclick="Technical()">요리세미나 듣기</button><br>
+            <button onclick="Stop()">쉬는시간</button><button onclick="Cancel()">판매재개</button>
+            <!--
+                + 2022.5.30 개사기버튼 ^^
+                <button onclick="moneygive()">돈+</button><button onclick="givefood()">음식+</button><button onclick="minusfood()">음식-</button><br>
+            -->
+            <span id="money" onmouseover="moneycon()">[돈 확인하기]</span><br><br>
+            <hr>
+            <br>
+            <p>
+                <button id="btn2-1" style="display: initial;" onclick="hiderecord('주문서')">주문서 숨김</button><button id="btn2-2" style="display: none;" onclick="hiderecord('주문서')">주문서 표출</button>
+                <button id="btn1-1" style="display: initial;" onclick="hiderecord('알림장')">알림장 숨김</button><button id="btn1-2" style="display: none;" onclick="hiderecord('알림장')">알림장 표출</button>
+                <button id="btn3-1" style="display: initial;" onclick="hiderecord('나의공간')">나의공간 숨김</button><button id="btn3-2" style="display: none;" onclick="hiderecord('나의공간')">나의공간 표출</button>
+            </p>
+            <br>
+            <hr>
+            <br><br><br><br><br><br><br><br>
+            <br>
+            <div id="sel" style="display: none; position: fixed; left: 50%; transform : translate(-50%); padding: 1em; width: 200px; height: 200px; background-color: #000; border: 1px solid red; text-align: center;">
+                <div id="yesoryes">이러쿵저러쿵 하시겠습니까?</div> <br> <div id="yes" style="background-color: lightgray; position: relative; transform: translate(0%);">네</div> <div id="no" style="background-color: lightgray; position: relative; transform: translate(0%);">아니오</div>
+            </div>
+        </div>
+    </section>
+    <aside>
+        <!--광고로 채우세요!-->
+    </aside>
+    <footer>
+        <span>제작자 : Link-State</span> | <span>버그/오류 문의 - ...</span><br>
+        <h6>이 게임은 브라우저 크롬을 기준으로 제작되었습니다. 크롬 외에 다른 브라우저로 실행 시, 오류가 발생 할 수 있습니다.</h6>
+    </footer>
+</body>
+</html>
